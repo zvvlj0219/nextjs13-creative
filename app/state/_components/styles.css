@@ -1,0 +1,32 @@
+.parent {
+    position: relative;
+    overflow: scroll;
+    height: 200px;
+  }
+  
+  .effect {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background-color: gray;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s;
+  }
+  
+  .visible {
+    display: flex;
+    opacity: 1;
+  }
+  
+  .content {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  

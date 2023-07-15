@@ -11,7 +11,9 @@ export default function Home(){
 
         <li><Link href={"/mui-system"}>mui-system</Link></li>
 
-        <li><Link href={"/animate"}>animte</Link></li>
+        <li><Link href={"/animate"}>animate</Link></li>
+
+        <li><Link href={"/state"}>state</Link></li>
 
       </ul>
 
