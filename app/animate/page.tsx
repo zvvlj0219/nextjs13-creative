@@ -1,6 +1,7 @@
 import Transition from "./_components/transition";
 import Scroll from "./_components/scroll"
 import Dnd from "./_components/dnd";
+import Pnc from "./_components/pnc";
 
 export default function AnimatePage(){
     return (
@@ -19,7 +20,7 @@ export default function AnimatePage(){
                 <p>ここはanimation page navigation</p>
                 <a href="#transition">transition&nbsp;&nbsp;</a>
                 <a href="#scroll">scroll&nbsp;&nbsp;</a>
-                <a href="#dnd">dnd&nbsp;&nbsp;</a>
+                <a href="#pnc">push and change&nbsp;&nbsp;</a>
             </nav>
 
             {/* <li id="transition">transition</li>
@@ -31,8 +32,11 @@ export default function AnimatePage(){
             <Scroll />
             */}
             
-            <li id="dnd">Drag and Drop</li>
-            <Dnd />
+            {/* <li id="dnd">Drag and Drop</li>
+            <Dnd /> */}
+
+            <li id="pnc">push and change</li>
+            <Pnc />
         </div>
     )
 }
