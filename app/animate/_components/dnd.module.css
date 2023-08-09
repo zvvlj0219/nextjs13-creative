@@ -1,0 +1,35 @@
+.page {
+    max-width: 1000px;
+  
+      margin: 0 auto;
+      padding: 10px 0 170px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    background-color: bisque;
+  
+    /* @media (min-width:map-get($breakpoints, pc)) {
+      gap: 40px;
+    } */
+}
+
+.square {
+    width: 45%;
+    background-color: aqua;
+    height: 200px;
+}
+
+.excel {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 1em;
+}
+
+.dragging {
+    background-color: #eee;
+  }
+
