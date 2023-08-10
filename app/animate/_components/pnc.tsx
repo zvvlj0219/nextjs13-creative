@@ -6,7 +6,7 @@
 "use client";
 
 import styles from "./pnc.module.css"
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 
 type Square = {
     id: number;
@@ -30,16 +30,16 @@ const dummyData: Square[] = [
         id: 4,
         orderIndex: 3
     },
-    // {
-    //     id: 5,
-    //     orderIndex: 4
-    // },
+    {
+        id: 5,
+        orderIndex: 4
+    },
 ]
 
 /**
  * 個々のスクエアの座標
  */
-interface OrderPosition {
+interface SquarePosition {
     top: number;
     left: number;
 }
@@ -52,8 +52,12 @@ interface CustomOrderState {
     isActiveCustomOrder: boolean;
     // 並び替えでクリックされた要素のインデクス
     clickedSquareIndex: number | null;
+    // 並び替えでクリックされた要素の座標
+    clickedPosition: SquarePosition | null;
     // 並び替えで、クリックされた要素の対になる要素（一緒に動くやつ）のインデクス
     pairedSquareIndex: number | null;
+    // 並び替えで、クリックされた要素の対になる要素（一緒に動くやつ）の座標
+    pairedPosition: SquarePosition | null;
 }
 
 
@@ -78,10 +82,17 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
     // squareのデータを保持する 
     const [squareData, setSquareData] = useState<Square[]>(squares)
 
-    // 検証用のapi
-    const saveApi = (targetSquare: Square, direction: Direction): void => {
-        const clikedSquare = squareData.find(square => {
-            return square.id === targetSquare.id
+    // squareの並び替えのメインの処理
+    const handleSquareCustomOrder = (
+        /** クリックされたスクエア */
+        square: Square,
+        /** 並び替える方向 */
+        direction: Direction,
+        /** クリックされたスクエアの座標 */
+        position: SquarePosition
+    ): void => {
+        const clikedSquare = squareData.find(_square => {
+            return _square.id === square.id
         })
 
 
@@ -92,22 +103,16 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
 
         switch(direction){
             case "left": {
-                console.log('left')
-
                 const pairedSquare = squareData.find(data => {
                     return data.orderIndex === clikedSquare.orderIndex - 1
                 })!
 
-                console.log({
-                    isActiveCustomOrder: true,
-                    clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
-                })
-
                 updateCustomOrderState({
                     isActiveCustomOrder: true,
                     clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
+                    pairedSquareIndex: pairedSquare.orderIndex,
+                    pairedPosition: null,
+                    clickedPosition: position
                 })
 
                 /////以下は実験用のapiの処理
@@ -131,8 +136,6 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                             orderIndex: pairedSquare.orderIndex + 1
                         }
                     ]
-                    console.log(updateData)
-
 
                     return updateData.sort((a, b) => {
                         if(a.orderIndex > b.orderIndex) {
@@ -146,22 +149,16 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                 break;
             }
             case "right": {
-                console.log('right')
-
                 const pairedSquare = squareData.find(data => {
                     return data.orderIndex === clikedSquare.orderIndex + 1
                 })!
 
-                console.log({
-                    isActiveCustomOrder: true,
-                    clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
-                })
-
                 updateCustomOrderState({
                     isActiveCustomOrder: true,
                     clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
+                    pairedSquareIndex: pairedSquare.orderIndex,
+                    pairedPosition: null,
+                    clickedPosition: position
                 })
 
                 /////以下は実験用のapiの処理
@@ -184,8 +181,6 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                             orderIndex: pairedSquare.orderIndex - 1
                         }
                     ]
-
-                    console.log(updateData)
 
                     return updateData.sort((a, b) => {
                         if(a.orderIndex > b.orderIndex) {
@@ -199,22 +194,16 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                 break;
             }
             case "lower left": {
-                console.log('lower left')
-
                 const pairedSquare = squareData.find(data => {
                     return data.orderIndex === clikedSquare.orderIndex + 1
                 })!
 
-                console.log({
-                    isActiveCustomOrder: true,
-                    clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
-                })
-
                 updateCustomOrderState({
                     isActiveCustomOrder: true,
                     clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
+                    pairedSquareIndex: pairedSquare.orderIndex,
+                    pairedPosition: null,
+                    clickedPosition: position
                 })
 
                 /////以下は実験用のapiの処理
@@ -237,8 +226,6 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                             orderIndex: pairedSquare.orderIndex - 1
                         }
                     ]
-                    console.log(updateData)
-
 
                     return updateData.sort((a, b) => {
                         if(a.orderIndex > b.orderIndex) {
@@ -252,22 +239,16 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                 break;
             }
             case "upper right": {
-                console.log('upper right')
-
                 const pairedSquare = squareData.find(data => {
                     return data.orderIndex === clikedSquare.orderIndex - 1
                 })!
 
-                console.log({
-                    isActiveCustomOrder: true,
-                    clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
-                })
-
                 updateCustomOrderState({
                     isActiveCustomOrder: true,
                     clickedSquareIndex: clikedSquare.orderIndex,
-                    pairedSquareIndex: pairedSquare.orderIndex
+                    pairedSquareIndex: pairedSquare.orderIndex,
+                    pairedPosition: null,
+                    clickedPosition: position
                 })
 
                 /////以下は実験用のapiの処理
@@ -290,8 +271,6 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                             orderIndex: pairedSquare.orderIndex + 1
                         }
                     ]
-                    console.log(updateData)
-
 
                     return updateData.sort((a, b) => {
                         if(a.orderIndex > b.orderIndex) {
@@ -305,29 +284,33 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                 break;
             }
         }
+
+        setTimeout(() => {
+            updateCustomOrderState({
+                isActiveCustomOrder: false,
+                clickedSquareIndex: null,
+                clickedPosition: null, 
+                pairedSquareIndex: null,
+                pairedPosition: null
+            })
+        }, 1000)
     }
 
     // 親側で並び替えの状態を管理する
     const [customOrderState, setCustomOrderState] = useState<CustomOrderState>({
         isActiveCustomOrder: false,
         clickedSquareIndex: null,
-        pairedSquareIndex: null
+        pairedSquareIndex: null,
+        clickedPosition: null,
+        pairedPosition: null
     })
 
     // 並び替えの実行の前後に、これを実行する
-    const updateCustomOrderState = (newState: CustomOrderState): void => {
-        const {
-            clickedSquareIndex,
-            pairedSquareIndex,
-            isActiveCustomOrder
-        } = newState;
+    const updateCustomOrderState = useCallback((newState: CustomOrderState): void => {
+        setCustomOrderState(newState)
+    },[])
 
-        setCustomOrderState({
-            clickedSquareIndex,
-            pairedSquareIndex,
-            isActiveCustomOrder
-        })
-    }
+    console.log('customOrderState', customOrderState)
 
     return (
         <div className={styles.container}>
@@ -337,7 +320,7 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
                     key={square.id}
                     square={square} /** numberTypeProps */
                     squaresLength={squareData.length}
-                    saveApi={saveApi} /** 実際はaxiosからapiを叩く */
+                    handleSquareCustomOrder={handleSquareCustomOrder} /** 実際はaxiosからapiを叩く */
                     customOrderState={customOrderState}
                     updateCustomOrderState={updateCustomOrderState}
                 />
@@ -353,61 +336,60 @@ type Direction = "right" | "left" | "lower left" | "upper right"
 type SquareElementProps = {
     square: Square;
     squaresLength: number;
-    saveApi: (targetSquare: Square, direction: Direction) => void; // 実験用
+    handleSquareCustomOrder: (square: Square, direction: Direction, position: SquarePosition) => void;
     customOrderState: CustomOrderState;
-    updateCustomOrderState: (newState: CustomOrderState) => void;
+    updateCustomOrderState: (newState: CustomOrderState) => void
 }
 const SqureElement: React.FC<SquareElementProps> = ({
     square,
     squaresLength,
-    saveApi,
+    handleSquareCustomOrder,
     customOrderState,
     updateCustomOrderState
 }) => {
     const squareRef = useRef<HTMLDivElement>(null);
 
-    // 並び替えのメインの処理
-    const handleSquareCustomOrder = (direction: Direction) => {
-
-
-
-
-        saveApi(square, direction) // 実験用api
-
+    // 親側のメインの処理を発火させる
+    const emitSquareCustomOrder = (direction: Direction) => {
         const rect = squareRef.current?.getBoundingClientRect();
+        if(!rect) return;
 
-
-        console.log('clicked', "index",square.orderIndex)
-        console.log('clicked', { 
-            top: rect?.top,
-            left: rect?.left
-        })
+        handleSquareCustomOrder(
+            square,
+            direction,
+            {
+                top: rect.top,
+                left: rect.left
+            }
+        )
     }
 
     const {
         isActiveCustomOrder,
         pairedSquareIndex,
-        clickedSquareIndex
+        clickedSquareIndex,
+        clickedPosition,
     } = customOrderState
 
     useEffect(() => {
         if(isActiveCustomOrder){
-            console.log(
-                'useEffect',
-                'pairedSquareIndex',pairedSquareIndex,
-                'clickedSquareIndex',clickedSquareIndex
-            )
             if(square.orderIndex === pairedSquareIndex){
                 const rect = squareRef.current?.getBoundingClientRect();
+                if(!rect) return;
 
-                console.log('pair', square.orderIndex)
-                console.log("pair", { 
-                    top: rect?.top,
-                    left: rect?.left
+                updateCustomOrderState({
+                    isActiveCustomOrder,
+                    pairedSquareIndex,
+                    clickedSquareIndex,
+                    clickedPosition,
+                    pairedPosition: {
+                        top: rect.top,
+                        left: rect.left
+                    }
                 })
             }
         }
-    }, [clickedSquareIndex, square.id, square.orderIndex, isActiveCustomOrder, pairedSquareIndex])
+    }, [clickedPosition, clickedSquareIndex, isActiveCustomOrder, pairedSquareIndex, square.orderIndex, updateCustomOrderState])
 
     return (
         <div
@@ -419,35 +401,33 @@ const SqureElement: React.FC<SquareElementProps> = ({
             >
                 {square.orderIndex % 2 === 0
                     ? square.orderIndex === 0
-                        ? <button onClick={() => handleSquareCustomOrder("right")}>
+                        ? <button onClick={() => emitSquareCustomOrder("right")}>
                             最初（右だけ）
                             </button> // 0 index
                         : squaresLength % 2 === 0
                         ?   <>
-                                <button  onClick={() => handleSquareCustomOrder("right")}>右</button>
-                                <button  onClick={() => handleSquareCustomOrder("upper right")}>右上</button>
+                                <button  onClick={() => emitSquareCustomOrder("right")}>右</button>
+                                <button  onClick={() => emitSquareCustomOrder("upper right")}>右上</button>
                             </>
                         : square.orderIndex !== squaresLength - 1
                         ?  <>
-                                <button  onClick={() => handleSquareCustomOrder("right")}>右</button>
-                                <button  onClick={() => handleSquareCustomOrder("upper right")}>右上</button>
+                                <button  onClick={() => emitSquareCustomOrder("right")}>右</button>
+                                <button  onClick={() => emitSquareCustomOrder("upper right")}>右上</button>
                             </>
-                        : <button onClick={() => handleSquareCustomOrder("upper right")}>最後（右上だけ）</button>
+                        : <button onClick={() => emitSquareCustomOrder("upper right")}>最後（右上だけ）</button>
                     : null}
 
                 {square.orderIndex % 2 !== 0
                 ? square.orderIndex === squaresLength - 1
-                    ? <button onClick={() => handleSquareCustomOrder("left")}>最後（左だけ）</button>
+                    ? <button onClick={() => emitSquareCustomOrder("left")}>最後（左だけ）</button>
                     :   <>
-                            <button onClick={() => handleSquareCustomOrder("left")}>左</button>
-                            <button onClick={() => handleSquareCustomOrder("lower left")}>左下</button>
+                            <button onClick={() => emitSquareCustomOrder("left")}>左</button>
+                            <button onClick={() => emitSquareCustomOrder("lower left")}>左下</button>
                         </>
                 : null}
 
                 <div>
                     <p>id: {square.id} </p>
-                    {/* <p>top: </p>
-                    <p>left: </p> */}
                 </div>
             </div>
         </div>
