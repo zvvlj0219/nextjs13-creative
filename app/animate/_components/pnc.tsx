@@ -6,7 +6,7 @@
 "use client";
 
 import styles from "./pnc.module.css"
-import { useState } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 
 type Square = {
     id: number;
@@ -36,13 +36,32 @@ const dummyData: Square[] = [
     // },
 ]
 
+/**
+ * 個々のスクエアの座標
+ */
+interface OrderPosition {
+    top: number;
+    left: number;
+}
+
+/**
+ * 並び替えのイベントの状態
+ */
+interface CustomOrderState {
+    // 並び替えを実行中かどうか
+    isActiveCustomOrder: boolean;
+    // 並び替えでクリックされた要素のインデクス
+    clickedSquareIndex: number | null;
+    // 並び替えで、クリックされた要素の対になる要素（一緒に動くやつ）のインデクス
+    pairedSquareIndex: number | null;
+}
 
 
 const Pnc  = () => {
     // dummyデータと保存用のapiを作る
     const [squareData, setSquareData] = useState<Square[]>(dummyData)
 
-    // 実験用のもので実際はapiを叩く
+    // 実験用のもので実際はapiを叩く 中身分解しないと
     const saveApi = (targetSquare: Square, direction: Direction): void => {
         const clikedSquare = squareData.find(data => {
             return data.id === targetSquare.id
@@ -62,10 +81,25 @@ const Pnc  = () => {
                     return data.orderIndex === clikedSquare.orderIndex - 1
                 })!
 
+                console.log({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                updateCustomOrderState({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                /////以下は実験用のapiの処理
+
                 const filteredData = squareData.filter(data => {
                     
                     return data.id !== clikedSquare.id && data.id !== pairedSquare.id
                 }) 
+
 
                 setSquareData(prevData => {
                 
@@ -100,6 +134,20 @@ const Pnc  = () => {
                 const pairedSquare = squareData.find(data => {
                     return data.orderIndex === clikedSquare.orderIndex + 1
                 })!
+
+                console.log({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                updateCustomOrderState({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                /////以下は実験用のapiの処理
 
                 const filteredData = squareData.filter(data => {
                     
@@ -140,6 +188,20 @@ const Pnc  = () => {
                     return data.orderIndex === clikedSquare.orderIndex + 1
                 })!
 
+                console.log({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                updateCustomOrderState({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                /////以下は実験用のapiの処理
+
                 const filteredData = squareData.filter(data => {
                     
                     return data.id !== clikedSquare.id && data.id !== pairedSquare.id
@@ -179,6 +241,20 @@ const Pnc  = () => {
                     return data.orderIndex === clikedSquare.orderIndex - 1
                 })!
 
+                console.log({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                updateCustomOrderState({
+                    isActiveCustomOrder: true,
+                    clickedSquareIndex: clikedSquare.orderIndex,
+                    pairedSquareIndex: pairedSquare.orderIndex
+                })
+
+                /////以下は実験用のapiの処理
+
                 const filteredData = squareData.filter(data => {
                     
                     return data.id !== clikedSquare.id && data.id !== pairedSquare.id
@@ -212,15 +288,35 @@ const Pnc  = () => {
                 break;
             }
         }
+    }
 
-        console.log(clikedSquare)
-    }    
+    const [customOrderState, setCustomOrderState] = useState<CustomOrderState>({
+        isActiveCustomOrder: false,
+        clickedSquareIndex: null,
+        pairedSquareIndex: null
+    })
+
+    // 並び替えの実行の前後に、これを実行する
+    const updateCustomOrderState = (newState: CustomOrderState): void => {
+        const {
+            clickedSquareIndex,
+            pairedSquareIndex,
+            isActiveCustomOrder
+        } = newState;
+
+        setCustomOrderState({
+            clickedSquareIndex,
+            pairedSquareIndex,
+            isActiveCustomOrder
+        })
+    }
 
     return (
         <div
         >
-            <p>this is pnc</p>
             {/* NumberTypeGroup */}
+            <p>this is pnc</p>
+            {/* wrapper */}
             <div className={styles.container}>
                 {squareData.map((data, index )=> (
                     // ここから下がNumberType
@@ -228,6 +324,8 @@ const Pnc  = () => {
                         data={data} /** numberTypeProps */
                         key={data.id}
                         saveApi={saveApi} /** 実際はaxiosからapiを叩く */
+                        customOrderState={customOrderState}
+                        updateCustomOrderState={updateCustomOrderState}
                     />
                 ))}
             </div> 
@@ -239,18 +337,60 @@ type Direction = "right" | "left" | "lower left" | "upper right"
 
 const SqureElement = ({
     data,
-    saveApi
+    saveApi,
+    customOrderState,
+    updateCustomOrderState
 }: {
     data: Square;
-    saveApi: (targetSquare: Square, direction: Direction) => void;
+    saveApi: (targetSquare: Square, direction: Direction) => void; // 実験用
+    customOrderState: CustomOrderState;
+    updateCustomOrderState: (newState: CustomOrderState) => void;
 }) => {
+    const squareRef = useRef<HTMLDivElement>(null);
+
+    
     const orderChange = (direction: Direction) => {
         saveApi(data, direction) // 実験用api
+
+        const rect = squareRef.current?.getBoundingClientRect();
+
+
+        console.log('clicked', "index",data.orderIndex)
+        console.log('clicked', { 
+            top: rect?.top,
+            left: rect?.left
+        })
     }
+
+    const {
+        isActiveCustomOrder,
+        pairedSquareIndex,
+        clickedSquareIndex
+    } = customOrderState
+
+    useEffect(() => {
+        if(isActiveCustomOrder){
+            console.log(
+                'useEffect',
+                'pairedSquareIndex',pairedSquareIndex,
+                'clickedSquareIndex',clickedSquareIndex
+            )
+            if(data.orderIndex === pairedSquareIndex){
+                const rect = squareRef.current?.getBoundingClientRect();
+
+                console.log('pair', data.orderIndex)
+                console.log("pair", { 
+                    top: rect?.top,
+                    left: rect?.left
+                })
+            }
+        }
+    }, [clickedSquareIndex, data.id, data.orderIndex, isActiveCustomOrder, pairedSquareIndex])
 
     return (
         <div
-        className={styles.square}
+            className={styles.square}
+            ref={squareRef}
         >
             <div
                 className="buttonArea"
