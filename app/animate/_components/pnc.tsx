@@ -351,15 +351,14 @@ const SqureElement: React.FC<SquareElementProps> = ({
 
     // 親側のメインの処理を発火させる
     const emitSquareCustomOrder = (direction: Direction) => {
-        const rect = squareRef.current?.getBoundingClientRect();
-        if(!rect) return;
+        if(!squareRef.current) return
 
         handleSquareCustomOrder(
             square,
             direction,
             {
-                top: rect.top,
-                left: rect.left
+                top: squareRef.current.offsetTop,
+                left: squareRef.current.offsetLeft
             }
         )
     }
@@ -374,8 +373,7 @@ const SqureElement: React.FC<SquareElementProps> = ({
     useEffect(() => {
         if(isActiveCustomOrder){
             if(square.orderIndex === pairedSquareIndex){
-                const rect = squareRef.current?.getBoundingClientRect();
-                if(!rect) return;
+                if(!squareRef.current) return;
 
                 updateCustomOrderState({
                     isActiveCustomOrder,
@@ -383,8 +381,8 @@ const SqureElement: React.FC<SquareElementProps> = ({
                     clickedSquareIndex,
                     clickedPosition,
                     pairedPosition: {
-                        top: rect.top,
-                        left: rect.left
+                        top: squareRef.current.offsetTop,
+                        left: squareRef.current.offsetLeft
                     }
                 })
             }
