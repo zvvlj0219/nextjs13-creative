@@ -7,6 +7,7 @@
 
 import styles from "./pnc.module.css"
 import { useState, useEffect, useCallback, useRef } from "react"
+import { styled } from "@mui/material";
 
 type Square = {
     id: number;
@@ -30,10 +31,10 @@ const dummyData: Square[] = [
         id: 4,
         orderIndex: 3
     },
-    {
-        id: 5,
-        orderIndex: 4
-    },
+    // {
+    //     id: 5,
+    //     orderIndex: 4
+    // },
 ]
 
 /**
@@ -331,6 +332,21 @@ const SquareElementWrapper: React.FC<SquareElementWrapperProps> = ({ squares }) 
 
 type Direction = "right" | "left" | "lower left" | "upper right"
 
+const SquareContainer = styled('div')<{
+    isActiveCustomOrder: boolean;
+    top: number;
+    left: number;
+}>`
+    ${({isActiveCustomOrder, top, left}) => isActiveCustomOrder && `
+        position: absolute;
+        top: ${top}px;
+        left: ${left}px;
+    `};
+
+    background-color: aqua;
+    width: 200px;
+    height: 200px;
+`
 
 // ここがNumberType
 type SquareElementProps = {
@@ -348,6 +364,13 @@ const SqureElement: React.FC<SquareElementProps> = ({
     updateCustomOrderState
 }) => {
     const squareRef = useRef<HTMLDivElement>(null);
+
+    // 各スクエアはwrapper内での座標を保持する
+    // イベントに関係ない要素は座標をしてしてabsoluteにする
+    const [position, setPosition] = useState<SquarePosition>({
+        top:0,
+        left:0
+    })
 
     // 親側のメインの処理を発火させる
     const emitSquareCustomOrder = (direction: Direction) => {
@@ -371,27 +394,41 @@ const SqureElement: React.FC<SquareElementProps> = ({
     } = customOrderState
 
     useEffect(() => {
+        if(!squareRef.current) return;
+
         if(isActiveCustomOrder){
             if(square.orderIndex === pairedSquareIndex){
-                if(!squareRef.current) return;
 
                 updateCustomOrderState({
                     isActiveCustomOrder,
                     pairedSquareIndex,
                     clickedSquareIndex,
                     clickedPosition,
+                    // wrapper内の座標に更新
                     pairedPosition: {
-                        top: squareRef.current.offsetTop,
+                        top:  squareRef.current.offsetTop,
                         left: squareRef.current.offsetLeft
                     }
                 })
             }
+
         }
+
+        // 各スクエアはwrapper内での座標を保持する
+        // イベントに関係ない要素は座標をしてしてabsoluteにする
+        setPosition({
+            top:  squareRef.current.offsetTop,
+            left: squareRef.current.offsetLeft
+        })
+        
+        console.log('called')
     }, [clickedPosition, clickedSquareIndex, isActiveCustomOrder, pairedSquareIndex, square.orderIndex, updateCustomOrderState])
 
     return (
-        <div
-            className={styles.square}
+        <SquareContainer
+            isActiveCustomOrder={isActiveCustomOrder}
+            top={position.top}
+            left={position.left}
             ref={squareRef}
         >
             <div
@@ -423,12 +460,15 @@ const SqureElement: React.FC<SquareElementProps> = ({
                             <button onClick={() => emitSquareCustomOrder("lower left")}>左下</button>
                         </>
                 : null}
-
-                <div>
-                    <p>id: {square.id} </p>
-                </div>
             </div>
-        </div>
+            <div>
+                <p>id: {square.id} </p>
+                <p>top: {position?.top}</p>
+                <p>left: {position?.left}</p>
+                <p>{isActiveCustomOrder ? "absoluteあり" : "absoluteなし"}</p>
+            </div>
+
+        </SquareContainer>
     )
 }
 

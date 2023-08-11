@@ -11,4 +11,8 @@
     gap: 20px;
     background-color: lightblue;
     justify-content: center;
+
+    position: relative;
+    /* 並び替え中の高さが0にならないようにする */
+    min-height: 500px;
 }
